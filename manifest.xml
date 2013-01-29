@@ -2,15 +2,12 @@
   <description brief="Driver for the Velodyne Lidar">
   
   </description>
-  <author>/</author>
+  <author>Sascha Arnold/sascha.arnold@dfki.de</author>
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
-  <!--
-   To add any dependencies use the depend tag
-  <depend package="dummy-dependency-0" />
-	...
-  <depend package="dummy-dependency-n-1" />
-  <depend package="dummy-dependency-n" />
-  -->
+  
+  <depend package="drivers/iodrivers_base" />
+  <depend package="base/types" />
+  
 </package>
