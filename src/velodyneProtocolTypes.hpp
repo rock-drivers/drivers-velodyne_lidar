@@ -32,17 +32,17 @@ namespace velodyne_lidar
         }
     }  __attribute__((packed)) velodyne_data_packet_t;
     
-    typedef struct velodyne_position {
+    typedef struct velodyne_orientation {
         /* the values are only stored in the least significant 12 bits */
         uint16_t gyro; // 0.09766 deg/sec scale factor
         uint16_t temperature; // 0.1453 scale factor + 25°C offset
         uint16_t accel_x; // 0.001221 G scale factor
         uint16_t accel_y; // 0.001221 G scale factor
-    }  __attribute__((packed)) velodyne_position_t;
+    }  __attribute__((packed)) velodyne_orientation_t;
     
     typedef struct velodyne_positioning_packet {
         uint8_t unused_1[14];
-        velodyne_position_t positions[VELODYNE_POSITION_READINGS];
+        velodyne_orientation_t orientations[VELODYNE_ORIENTATION_READINGS];
         uint8_t unused_2[160];
         uint32_t gps_timestamp; // in microseconds from the top of the hour
         uint8_t unused_3[4];
