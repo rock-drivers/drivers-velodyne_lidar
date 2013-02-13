@@ -18,12 +18,12 @@ namespace velodyne_lidar
     static const uint16_t VELODYNE_UPPER_HEADER_BYTES = 0xEEFF; //The byte indicating a upper shot
     static const uint16_t VELODYNE_LOWER_HEADER_BYTES = 0xDDFF; //The byte indicating a lower shot
     
-    static const unsigned int VELODYNE_FIRING_ORDER[] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30,
-                                                         1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31};
+    static const unsigned int VELODYNE_FIRING_ORDER[] = {31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1,
+                                                         30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0};
                                                          
     static const double VELODYNE_VERTICAL_RESOLUTION = 1.333333333; // vertical resolution in degree
-    static const double VELODYNE_VERTICAL_START_ANGLE = -VELODYNE_VERTICAL_RESOLUTION * 23.0; // vertical start angle in degree
-    static const double VELODYNE_VERTICAL_END_ANGLE = VELODYNE_VERTICAL_RESOLUTION * 8; // vertical end angle in degree
+    static const double VELODYNE_VERTICAL_START_ANGLE = -VELODYNE_VERTICAL_RESOLUTION * 8; // vertical start angle in degree
+    static const double VELODYNE_VERTICAL_END_ANGLE = VELODYNE_VERTICAL_RESOLUTION * 23.0; // vertical end angle in degree
 };
 
 #endif
