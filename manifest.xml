@@ -10,4 +10,6 @@
   <depend package="drivers/iodrivers_base" />
   <depend package="base/types" />
   
+  <tags>needs_opt</tags>
+  
 </package>

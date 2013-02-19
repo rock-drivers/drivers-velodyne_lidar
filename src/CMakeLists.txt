@@ -1,5 +1,5 @@
 rock_library(velodyne_lidar
-    SOURCES velodyneDataDriver.cpp velodynePositioningDriver.cpp
+    SOURCES velodyneDataDriver.cpp velodynePositioningDriver.cpp MultilevelLaserScan.cpp
     HEADERS velodyneDataDriver.hpp velodynePositioningDriver.hpp velodyneConstants.hpp velodyneProtocolTypes.hpp MultilevelLaserScan.h gps_rmc_type.h
     DEPS_PKGCONFIG base-lib iodrivers_base)
 
