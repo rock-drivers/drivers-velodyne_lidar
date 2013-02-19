@@ -38,8 +38,10 @@ void VelodynePositioningDriver::convertMotionValues(const velodyne_orientation_t
 
 void VelodynePositioningDriver::convertNMEASentence(const std::string& nmea_message, GPS_RMC& rmc_data)
 {
-    if(nmea_message.find("$GPRMC,") != 0)
-        throw std::runtime_error("wrong message given to convertNMEASentence");
+    if(nmea_message.size() == 0)
+        throw std::runtime_error("no NMEA sentence received, message is empty");
+    else if(nmea_message.find("$GPRMC,") != 0)
+        throw std::runtime_error("wrong message given to convertNMEASentence: " + nmea_message);
 
     std::vector<std::string> fields;
     boost::split( fields, nmea_message, boost::is_any_of(",*") );
