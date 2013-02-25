@@ -14,6 +14,9 @@ namespace vizkit
         , boost::noncopyable
     {
     Q_OBJECT
+    
+    Q_PROPERTY(int SkipHorizontalScans READ getSkipHorizontalScans WRITE setSkipHorizontalScans)
+    
     public:
         MultilevelLaserVisualization();
         ~MultilevelLaserVisualization();
@@ -26,6 +29,10 @@ namespace vizkit
         { Vizkit3DPlugin<velodyne_lidar::MultilevelLaserScan>::updateData(data); }
         Q_INVOKABLE void updatePose(const base::samples::RigidBodyState& data)
         { updateData(data); }
+        
+    public slots:
+        int getSkipHorizontalScans() const;
+        void setSkipHorizontalScans(int count);
 
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -40,6 +47,7 @@ namespace vizkit
         osg::ref_ptr< osg::PositionAttitudeTransform > transformNode;
         osg::ref_ptr<osg::Geode> scanNode;
         osg::ref_ptr<osg::Geometry> scanGeom;
+        unsigned int skip_n_horizontal_scans;
     };
 }
 #endif

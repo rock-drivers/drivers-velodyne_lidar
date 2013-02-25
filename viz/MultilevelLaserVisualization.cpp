@@ -5,11 +5,12 @@
 #include <osg/Geometry>
 #include <osg/Point>
 #include "MultilevelLaserVisualization.hpp"
+#include <velodyne_lidar/pointcloudConvertHelper.hpp>
 #include <time.h>
 
 using namespace vizkit;
 
-MultilevelLaserVisualization::MultilevelLaserVisualization()
+MultilevelLaserVisualization::MultilevelLaserVisualization() : skip_n_horizontal_scans(0)
 {
     scanOrientation = Eigen::Quaterniond::Identity();
     scanPosition.setZero();
@@ -63,7 +64,7 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
     osg::Vec3Array *scanVertices = new osg::Vec3Array();
 
     std::vector<Eigen::Vector3d> points;
-    scan.convertScanToPointCloud(points);
+    velodyne_lidar::ConvertHelper::convertScanToPointCloud(scan, points,Eigen::Affine3d::Identity(), true, skip_n_horizontal_scans);
     
     scanVertices->reserve(points.size());
 
@@ -86,6 +87,20 @@ void MultilevelLaserVisualization::updateDataIntern(const base::samples::RigidBo
 {
     scanOrientation = sample.orientation;
     scanPosition = sample.position;
+}
+
+int MultilevelLaserVisualization::getSkipHorizontalScans() const
+{
+    return skip_n_horizontal_scans;
+}
+
+void MultilevelLaserVisualization::setSkipHorizontalScans(int count)
+{
+    if(count >= 0)
+    {
+        skip_n_horizontal_scans = count;
+        emit propertyChanged("SkipHorizontalScans");
+    }
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.

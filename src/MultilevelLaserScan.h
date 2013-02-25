@@ -85,58 +85,6 @@ struct MultilevelLaserScan
             return true;
         return false;
     }
-    
-    /** converts the multilevel laser scan into a point cloud according to the given transformation matrix,
-    *  the start_angle and the angular_resolution. If the transformation matrix is set to 
-    *  identity the laser scan is converted into the coordinate system of the sensor (x-axis = forward,
-    *  y-axis = to the left, z-axis = upwards)
-    *  If a scan point is outside of valid range all its coordinates are set to NaN.
-    *  Unfortunately invalid scan points can not be skipped because this would invalidate the remission association
-    */
-    template<typename T>
-    void convertScanToPointCloud(std::vector<T> &points,
-                                 const Eigen::Affine3d& transform = Eigen::Affine3d::Identity(), 
-                                 bool skip_invalid_points = true) const
-    {        
-        points.clear();
-
-        //give the vector a hint about the size it might be
-        if(!horizontal_scans.empty())
-        {
-            points.reserve(horizontal_scans.size() * horizontal_scans.front().vertical_scans.size());
-        }
-        
-        for(std::vector<VerticalMultilevelScan>::const_iterator v_scan = horizontal_scans.begin(); v_scan < horizontal_scans.end(); v_scan++) 
-        {
-            for(unsigned int i = 0; i < v_scan->vertical_scans.size(); i++)
-            {
-                Eigen::Vector3d point;
-                if(isRangeValid(v_scan->vertical_scans[i].range))
-                {
-                    //get a vector with the right length
-                    point = ((double)v_scan->vertical_scans[i].range / 1000.0) * Eigen::Vector3d::UnitX();
-                    //rotate
-                    point = getHorizontalRotation(v_scan->horizontal_angle) * getVerticalRotation(base::Angle::fromRad(v_scan->vertical_start_angle.getRad() + i * v_scan->vertical_angular_resolution)) * point;
-                    
-                    point = transform * point;
-                    points.push_back(point);
-                }
-                else if(!skip_invalid_points)
-                {
-                    points.push_back(Eigen::Vector3d(base::unknown<double>(), base::unknown<double>(), base::unknown<double>()));
-                }
-            }
-        }
-    }
-
-    /** gets the horizontal rotation from a LUT
-     */
-    Eigen::Quaterniond getHorizontalRotation(const base::Angle &rad) const;
-    
-    /** gets the vertical rotation from a LUT
-     */
-    Eigen::Quaterniond getVerticalRotation(const base::Angle &rad) const;
-
 };
     
 };
