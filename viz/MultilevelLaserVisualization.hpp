@@ -16,6 +16,9 @@ namespace vizkit
     Q_OBJECT
     
     Q_PROPERTY(int SkipHorizontalScans READ getSkipHorizontalScans WRITE setSkipHorizontalScans)
+    Q_PROPERTY(bool ColorizeAltitude READ isColorizeAltitudeEnabled WRITE setColorizeAltitude)
+    Q_PROPERTY(bool ColorizeMagnitude READ isColorizeMagnitudeEnabled WRITE setColorizeMagnitude)
+    Q_PROPERTY(double ColorizeInterval READ getColorizeInterval WRITE setColorizeInterval)
     
     public:
         MultilevelLaserVisualization();
@@ -33,6 +36,12 @@ namespace vizkit
     public slots:
         int getSkipHorizontalScans() const;
         void setSkipHorizontalScans(int count);
+        void setColorizeAltitude(bool value);
+        bool isColorizeAltitudeEnabled()const;
+        void setColorizeMagnitude(bool value);
+        bool isColorizeMagnitudeEnabled()const;
+        void setColorizeInterval(double value);
+        double getColorizeInterval()const;
 
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -48,6 +57,9 @@ namespace vizkit
         osg::ref_ptr<osg::Geode> scanNode;
         osg::ref_ptr<osg::Geometry> scanGeom;
         unsigned int skip_n_horizontal_scans;
+        bool colorize_altitude;
+        bool colorize_magnitude;
+        double colorize_interval;
     };
 }
 #endif
