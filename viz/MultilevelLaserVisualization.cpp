@@ -12,7 +12,7 @@
 using namespace vizkit;
 
 MultilevelLaserVisualization::MultilevelLaserVisualization() : 
-    skip_n_horizontal_scans(0), colorize_altitude(false), colorize_magnitude(false), colorize_interval(1.0)
+    skip_n_horizontal_scans(0), colorize_altitude(false), colorize_magnitude(false), colorize_interval(1.0), show_remission(false)
 {
     scanOrientation = Eigen::Quaterniond::Identity();
     scanPosition.setZero();
@@ -59,7 +59,8 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
     osg::Vec3Array *scanVertices = new osg::Vec3Array();
 
     std::vector<Eigen::Vector3d> points;
-    velodyne_lidar::ConvertHelper::convertScanToPointCloud(scan, points,Eigen::Affine3d::Identity(), true, skip_n_horizontal_scans);
+    std::vector<float> remission_values;
+    velodyne_lidar::ConvertHelper::convertScanToPointCloud(scan, points, Eigen::Affine3d::Identity(), true, skip_n_horizontal_scans, &remission_values);
     
     //set color binding
     osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
@@ -75,6 +76,14 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
             osg::Vec4 color( 1.0, 1.0, 1.0, 1.0 );
             hslToRgb(hue, 1.0, 0.5, color.r(), color.g(), color.b());
             colors->push_back(color);
+        }
+        scanGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    }
+    else if(show_remission)
+    {
+        for(std::vector<float>::const_iterator it = remission_values.begin(); it != remission_values.end(); it++)
+        {
+            colors->push_back(osg::Vec4(0,0,*it,0.5));
         }
         scanGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
     }
@@ -158,6 +167,18 @@ void MultilevelLaserVisualization::setColorizeMagnitude(bool value)
     colorize_magnitude = value;
     emit propertyChanged("ColorizeMagnitude");
 }
+
+bool MultilevelLaserVisualization::isShowRemissionEnabled() const
+{
+    return show_remission;
+}
+
+void MultilevelLaserVisualization::setShowRemission(bool value)
+{
+    show_remission = value;
+    emit propertyChanged("ShowRemission");
+}
+
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 VizkitQtPlugin(MultilevelLaserVisualization)

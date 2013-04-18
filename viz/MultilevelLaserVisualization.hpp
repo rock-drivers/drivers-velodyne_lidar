@@ -19,6 +19,7 @@ namespace vizkit
     Q_PROPERTY(bool ColorizeAltitude READ isColorizeAltitudeEnabled WRITE setColorizeAltitude)
     Q_PROPERTY(bool ColorizeMagnitude READ isColorizeMagnitudeEnabled WRITE setColorizeMagnitude)
     Q_PROPERTY(double ColorizeInterval READ getColorizeInterval WRITE setColorizeInterval)
+    Q_PROPERTY(bool ShowRemission READ isShowRemissionEnabled WRITE setShowRemission)
     
     public:
         MultilevelLaserVisualization();
@@ -42,6 +43,8 @@ namespace vizkit
         bool isColorizeMagnitudeEnabled()const;
         void setColorizeInterval(double value);
         double getColorizeInterval()const;
+        void setShowRemission(bool value);
+        bool isShowRemissionEnabled() const;
 
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -60,6 +63,7 @@ namespace vizkit
         bool colorize_altitude;
         bool colorize_magnitude;
         double colorize_interval;
+        bool show_remission;
     };
 }
 #endif
