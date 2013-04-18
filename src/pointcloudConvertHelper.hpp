@@ -18,25 +18,8 @@ public:
      * It will allways skip n horizontal scans and than convert one and so on.
     */
     static void convertScanToPointCloud(const MultilevelLaserScan &laser_scan, std::vector<Eigen::Vector3d> &points,
-                                 const Eigen::Affine3d& transform, bool skip_invalid_points, unsigned int skip_n_horizontal_scans);
-    
-    
-    static void convertScanToPointCloud(const MultilevelLaserScan &laser_scan, std::vector<Eigen::Vector3d> &points)
-    {
-        convertScanToPointCloud(laser_scan, points, Eigen::Affine3d::Identity());
-    }
-    
-    static void convertScanToPointCloud(const MultilevelLaserScan &laser_scan, std::vector<Eigen::Vector3d> &points,
-                                        const Eigen::Affine3d& transform)
-    {
-        convertScanToPointCloud(laser_scan, points, transform, true);
-    }
-    
-    static void convertScanToPointCloud(const MultilevelLaserScan &laser_scan, std::vector<Eigen::Vector3d> &points,
-                                const Eigen::Affine3d& transform, bool skip_invalid_points)
-    {
-        convertScanToPointCloud(laser_scan, points, transform, skip_invalid_points, 0);
-    }
+                                 const Eigen::Affine3d& transform = Eigen::Affine3d::Identity(), bool skip_invalid_points = true, 
+                                 unsigned int skip_n_horizontal_scans = 0, std::vector<float>* remission_values = NULL);
     
 private:
     ConvertHelper();

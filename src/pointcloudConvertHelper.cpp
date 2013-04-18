@@ -70,10 +70,14 @@ RotationLUT*  RotationLUT::instance = 0;
 
 void ConvertHelper::convertScanToPointCloud(const MultilevelLaserScan& laser_scan, std::vector<Eigen::Vector3d> &points,
                                             const Eigen::Affine3d& transform, bool skip_invalid_points,
-                                            unsigned int skip_n_horizontal_scans)
+                                            unsigned int skip_n_horizontal_scans,
+                                            std::vector<float>* remission_values)
 {        
     points.clear();
     RotationLUT* lut = RotationLUT::getInstance();
+    
+    if(remission_values != NULL)
+        remission_values->clear();
 
     //give the vector a hint about the size it might be
     if(!laser_scan.horizontal_scans.empty())
@@ -105,11 +109,20 @@ void ConvertHelper::convertScanToPointCloud(const MultilevelLaserScan& laser_sca
                 
                 point = transform * point;
                 points.push_back(point);
+                
+                if(remission_values != NULL)
+                    remission_values->push_back(v_scan->vertical_scans[i].remission);
             }
             else if(!skip_invalid_points)
             {
                 points.push_back(Eigen::Vector3d(base::unknown<double>(), base::unknown<double>(), base::unknown<double>()));
+                
+                if(remission_values != NULL)
+                    remission_values->push_back(v_scan->vertical_scans[i].remission);
             }
         }
     }
+    
+    if(remission_values != NULL)
+        assert(points.size() == remission_values->size());
 }
