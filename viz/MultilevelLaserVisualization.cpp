@@ -12,7 +12,7 @@
 using namespace vizkit;
 
 MultilevelLaserVisualization::MultilevelLaserVisualization() : 
-    skip_n_horizontal_scans(0), colorize_altitude(false), colorize_magnitude(false), colorize_interval(1.0), show_remission(false)
+    skip_n_horizontal_scans(0), colorize_altitude(false), colorize_magnitude(false), colorize_interval(1.0), show_remission(false), show_slope(false)
 {
     scanOrientation = Eigen::Quaterniond::Identity();
     scanPosition.setZero();
@@ -47,6 +47,12 @@ osg::ref_ptr<osg::Node> MultilevelLaserVisualization::createMainNode()
     //turn on transparacny
     scanNode->getOrCreateStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
     scanNode->addDrawable(scanGeom);
+    
+    //setup slope geometry
+    slopeGeom = new osg::Geometry();
+    slopeGeom->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE);
+    slopeGeom->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF); 
+    scanNode->addDrawable(slopeGeom);
 
     return transformNode;
 }
@@ -90,7 +96,6 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
     else
     {
         colors->push_back(osg::Vec4(0,0,0.3,0.5));
-        colors->push_back(osg::Vec4(1,0,0,1));
         scanGeom->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
     }
     scanGeom->setColorArray(colors);
@@ -105,6 +110,57 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
         scanGeom->removePrimitiveSet(0);
    
     scanGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,scanVertices->size()));
+    
+    while(!slopeGeom->getPrimitiveSetList().empty())
+        slopeGeom->removePrimitiveSet(0);
+    
+    //draw slope geometry
+    if(show_slope)
+    {
+        osg::ref_ptr<osg::Vec3Array> slope_vertices = new osg::Vec3Array();
+        osg::ref_ptr<osg::Vec4Array> slope_colors = new osg::Vec4Array();
+        
+        unsigned int h_skip_count = 0;
+        int pointcloud_index = -1;
+        for(std::vector<velodyne_lidar::MultilevelLaserScan::VerticalMultilevelScan>::const_iterator v_scan = scan.horizontal_scans.begin(); v_scan < scan.horizontal_scans.end(); v_scan++) 
+        {
+            // check if horizontal scan should be skipped
+            if(h_skip_count < skip_n_horizontal_scans)
+            {
+                h_skip_count++;
+                continue;
+            }
+            h_skip_count = 0;
+            
+            for(unsigned int i = 0; i < v_scan->vertical_scans.size(); i++)
+            {
+                if(scan.isRangeValid(v_scan->vertical_scans[i].range))
+                    pointcloud_index++;
+                
+                if((i+1) >= v_scan->vertical_scans.size())
+                    break;
+                
+                if(scan.isRangeValid(v_scan->vertical_scans[i].range) && scan.isRangeValid(v_scan->vertical_scans[i+1].range) &&
+                    (std::min(v_scan->vertical_scans[i].range, v_scan->vertical_scans[i+1].range) * 1.3) >= std::max(v_scan->vertical_scans[i].range, v_scan->vertical_scans[i+1].range))
+                {
+                    slope_vertices->push_back(scanVertices->at(pointcloud_index));
+                    slope_vertices->push_back(scanVertices->at(pointcloud_index+1));
+                    
+                    Eigen::Vector3d v_diff = points[pointcloud_index+1] - points[pointcloud_index];
+                    Eigen::Vector3d v_ground = Eigen::Vector3d(v_diff.x(), v_diff.y(), 0.0);
+                    double v_angle = acos((v_diff.dot(v_ground)) / (v_diff.norm() * v_ground.norm()));
+                    
+                    osg::Vec4 color( 1.0, 1.0, 1.0, 1.0 );
+                    hslToRgb(v_angle/M_PI, 1.0, 0.5, color.r(), color.g(), color.b());
+                    slope_colors->push_back(color);
+                }
+            }
+        }
+        
+        slopeGeom->setColorArray(slope_colors);
+        slopeGeom->setVertexArray(slope_vertices);
+        slopeGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,0,slope_vertices->size()));
+    }
 }
 
 void MultilevelLaserVisualization::updateDataIntern(velodyne_lidar::MultilevelLaserScan const& sample)
@@ -179,6 +235,16 @@ void MultilevelLaserVisualization::setShowRemission(bool value)
     emit propertyChanged("ShowRemission");
 }
 
+bool MultilevelLaserVisualization::isShowSlopeEnabled() const
+{
+    return show_slope;
+}
+
+void MultilevelLaserVisualization::setShowSlope(bool value)
+{
+    show_slope = value;
+    emit propertyChanged("ShowSlope");
+}
 
 //Macro that makes this plugin loadable in ruby, this is optional.
 VizkitQtPlugin(MultilevelLaserVisualization)
