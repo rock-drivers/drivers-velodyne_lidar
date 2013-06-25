@@ -21,6 +21,15 @@ public:
                                  const Eigen::Affine3d& transform = Eigen::Affine3d::Identity(), bool skip_invalid_points = true, 
                                  unsigned int skip_n_horizontal_scans = 0, std::vector<float>* remission_values = NULL);
     
+    /**
+     * Provides a binning of the horizontal scans of every vertical plane. The scans inside a bin are filtered 
+     * related to the standard deviation. The average of the filtered scans is used to represent the new scan.
+     * @param laser_scan input scan
+     * @param filtered_laser_scan output scan
+     * @param angular_bin_size is the horizontal bin size in radiant
+     */
+    static void horizontalBinning(const MultilevelLaserScan &laser_scan, MultilevelLaserScan &filtered_laser_scan, double angular_bin_size);
+    
 private:
     ConvertHelper();
     ~ConvertHelper();
