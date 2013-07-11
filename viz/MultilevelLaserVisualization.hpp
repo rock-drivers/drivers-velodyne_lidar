@@ -6,6 +6,7 @@
 #include <osg/Geode>
 #include <base/samples/rigid_body_state.h>
 #include <velodyne_lidar/MultilevelLaserScan.h>
+#include <base/angle.h>
 
 namespace vizkit
 {
@@ -21,6 +22,7 @@ namespace vizkit
     Q_PROPERTY(double ColorizeInterval READ getColorizeInterval WRITE setColorizeInterval)
     Q_PROPERTY(bool ShowRemission READ isShowRemissionEnabled WRITE setShowRemission)
     Q_PROPERTY(bool ShowSlope READ isShowSlopeEnabled WRITE setShowSlope)
+    Q_PROPERTY(double MaximumAngleToNeighbor READ getMaximumAngleToNeighbor WRITE setMaximumAngleToNeighbor)
     
     public:
         MultilevelLaserVisualization();
@@ -48,6 +50,8 @@ namespace vizkit
         bool isShowRemissionEnabled() const;
         void setShowSlope(bool value);
         bool isShowSlopeEnabled() const;
+        void setMaximumAngleToNeighbor(double value);
+        double getMaximumAngleToNeighbor() const;
 
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -69,6 +73,7 @@ namespace vizkit
         double colorize_interval;
         bool show_remission;
         bool show_slope;
+        base::Angle maximum_angle_to_neighbor;
     };
 }
 #endif

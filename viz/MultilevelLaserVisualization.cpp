@@ -16,6 +16,7 @@ MultilevelLaserVisualization::MultilevelLaserVisualization() :
 {
     scanOrientation = Eigen::Quaterniond::Identity();
     scanPosition.setZero();
+    maximum_angle_to_neighbor = base::Angle::fromDeg(160);
 }
 
 MultilevelLaserVisualization::~MultilevelLaserVisualization()
@@ -66,6 +67,9 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
 
     std::vector<Eigen::Vector3d> points;
     std::vector<float> remission_values;
+    velodyne_lidar::MultilevelLaserScan filtered_scan;
+    velodyne_lidar::ConvertHelper::filterOutliers(scan, filtered_scan, maximum_angle_to_neighbor.getRad());
+    scan = filtered_scan;
     velodyne_lidar::ConvertHelper::convertScanToPointCloud(scan, points, Eigen::Affine3d::Identity(), true, skip_n_horizontal_scans, &remission_values);
     
     //set color binding
@@ -244,6 +248,16 @@ void MultilevelLaserVisualization::setShowSlope(bool value)
 {
     show_slope = value;
     emit propertyChanged("ShowSlope");
+}
+
+double MultilevelLaserVisualization::getMaximumAngleToNeighbor() const
+{
+    return maximum_angle_to_neighbor.getDeg();
+}
+
+void MultilevelLaserVisualization::setMaximumAngleToNeighbor(double value)
+{
+    maximum_angle_to_neighbor = base::Angle::fromDeg(value);
 }
 
 //Macro that makes this plugin loadable in ruby, this is optional.
