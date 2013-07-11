@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <velodyne_lidar/MultilevelLaserScan.h>
+#include <velodyne_lidar/range_data_filter.hpp>
 
 namespace velodyne_lidar
 {
@@ -29,6 +30,23 @@ public:
      * @param angular_bin_size is the horizontal bin size in radiant
      */
     static void horizontalBinning(const MultilevelLaserScan &laser_scan, MultilevelLaserScan &filtered_laser_scan, double angular_bin_size);
+    
+    /**
+     * This method filters outliers according to the maximum angle to each of their four (or three) direct neighbors.
+     * It mainly aims to remove outliers which arise after edges and have therefore a high angle to the next neighbor.
+     * @param laser_scan input scan
+     * @param filtered_laser_scan output scan
+     * @param max_deviation_angle the angle to a valid neighbor should be lower than this angle
+     * @param min_neighbors minimum number of valid neighbors
+     */
+    static void filterOutliers(const MultilevelLaserScan &laser_scan, MultilevelLaserScan &filtered_laser_scan, double max_deviation_angle, unsigned min_neighbors = 1);
+    
+    /**
+     * It computes the angle alpha if (a) is the longer ray and (b) is the shorter ray.
+     * In that case the angle alpha is always the maximum angle in the triangle build 
+     * by the origin and the tips of both rays.
+     */
+    static double computeMaximumAngle(double angle_between_rays, double dist_ray_1, double dist_ray_2);
     
 private:
     ConvertHelper();

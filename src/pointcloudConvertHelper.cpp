@@ -1,5 +1,9 @@
 #include "pointcloudConvertHelper.hpp"
 
+#include <algorithm>
+#include <math.h>
+#include <stdexcept>
+
 using namespace velodyne_lidar;
 
 /**
@@ -275,4 +279,92 @@ void ConvertHelper::horizontalBinning(const MultilevelLaserScan &laser_scan, Mul
     }
     
     assert(values_handled == laser_scan.horizontal_scans.size());
+}
+
+void ConvertHelper::filterOutliers(const MultilevelLaserScan& laser_scan, MultilevelLaserScan& filtered_laser_scan, double max_deviation_angle, unsigned min_neighbors)
+{
+    // copy data
+    filtered_laser_scan.horizontal_scans = laser_scan.horizontal_scans;
+    filtered_laser_scan.time = laser_scan.time;
+    filtered_laser_scan.min_range = laser_scan.min_range;
+    filtered_laser_scan.max_range = laser_scan.max_range;
+    
+    // this should always be the case
+    if(filtered_laser_scan.min_range <= MultilevelLaserScan::MAX_RANGE_ERROR) 
+        filtered_laser_scan.min_range = MultilevelLaserScan::MAX_RANGE_ERROR+1;
+    
+    // check for invalid input or nothing to do
+    if(max_deviation_angle >= M_PI || max_deviation_angle < 0.0 || laser_scan.horizontal_scans.size() == 0 || 
+       laser_scan.horizontal_scans.front().vertical_scans.size() == 0)
+        return;
+    
+    for(int i = 0; i < laser_scan.horizontal_scans.size(); i++)
+    {
+        const MultilevelLaserScan::VerticalMultilevelScan* left_scan = &laser_scan.horizontal_scans[i == 0 ? laser_scan.horizontal_scans.size()-1 : i-1];
+        const MultilevelLaserScan::VerticalMultilevelScan* current_scan = &laser_scan.horizontal_scans[i];
+        const MultilevelLaserScan::VerticalMultilevelScan* right_scan = &laser_scan.horizontal_scans[i == laser_scan.horizontal_scans.size()-1 ? 0 : i+1];
+        double left_h_angle = std::abs((current_scan->horizontal_angle - left_scan->horizontal_angle).getRad());
+        double right_h_angle = std::abs((right_scan->horizontal_angle - current_scan->horizontal_angle).getRad());
+        for(unsigned j = 0; j < laser_scan.horizontal_scans[i].vertical_scans.size(); j++)
+        {
+            // continue if current ray is already invalid
+            if(!filtered_laser_scan.isRangeValid(current_scan->vertical_scans[j].range))
+                continue;
+            
+            double current_ray_dist = current_scan->vertical_scans[j].range * 0.001;
+            unsigned neighbors_found = 0;
+            
+            // find at least one valid neighbor
+            double v_angle = laser_scan.horizontal_scans[i].vertical_angular_resolution;
+            if(filtered_laser_scan.isRangeValid(left_scan->vertical_scans[j].range) && 
+                    max_deviation_angle >= computeMaximumAngle(left_h_angle, current_ray_dist, left_scan->vertical_scans[j].range * 0.001))
+            {
+                neighbors_found++;
+                if(neighbors_found >= min_neighbors)
+                    continue;
+            }
+            if(filtered_laser_scan.isRangeValid(right_scan->vertical_scans[j].range) && 
+                    max_deviation_angle >= computeMaximumAngle(right_h_angle, current_ray_dist, right_scan->vertical_scans[j].range * 0.001))
+            {
+                neighbors_found++;
+                if(neighbors_found >= min_neighbors)
+                    continue;
+            }
+            if(j > 0 && filtered_laser_scan.isRangeValid(current_scan->vertical_scans[j-1].range) &&
+                    max_deviation_angle >= computeMaximumAngle(v_angle, current_ray_dist, current_scan->vertical_scans[j-1].range * 0.001))
+            {
+                neighbors_found++;
+                if(neighbors_found >= min_neighbors)
+                    continue;
+            }
+            if(j < current_scan->vertical_scans.size()-1 && filtered_laser_scan.isRangeValid(current_scan->vertical_scans[j+1].range) &&
+                    max_deviation_angle >= computeMaximumAngle(v_angle, current_ray_dist, current_scan->vertical_scans[j+1].range * 0.001))
+            {
+                neighbors_found++;
+            }
+            
+            if(neighbors_found >= min_neighbors)
+                continue;
+
+            // invalidate the current ray if too less valid neighbors have been found
+            filtered_laser_scan.horizontal_scans[i].vertical_scans[j].range = MultilevelLaserScan::MEASUREMENT_ERROR;
+        }
+    }
+}
+
+
+double ConvertHelper::computeMaximumAngle(double angle_between_rays, double dist_ray_1, double dist_ray_2)
+{
+    if(dist_ray_1 <= 0.0 || dist_ray_2 <= 0.0)
+        throw std::range_error("The ray distants have to be positive!");
+    else if(angle_between_rays <= 0.0 || angle_between_rays >= M_PI)
+        throw std::range_error("The angle between the rays has to be positive and smaller than PI");
+    else if(dist_ray_1 == dist_ray_2)
+        return (M_PI - angle_between_rays) * 0.5;
+    
+    double min_dist = std::min(dist_ray_1, dist_ray_2);
+    double max_dist = std::max(dist_ray_1, dist_ray_2);
+    
+    double oposite_angle = atan2(sin(angle_between_rays) * min_dist, max_dist - (cos(angle_between_rays) * min_dist));
+    return M_PI - (oposite_angle + angle_between_rays);
 }
