@@ -63,7 +63,7 @@ struct MultilevelLaserScan
         double vertical_angular_resolution;
     };
     
-    MultilevelLaserScan() : time(base::Time::now()), min_range(0), max_range(0) {};
+    MultilevelLaserScan() : time(base::Time::now()), min_range(MAX_RANGE_ERROR+1), max_range(0) {};
     
     /** The timestamp of this reading.
      */
