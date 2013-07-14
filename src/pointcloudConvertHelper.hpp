@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <velodyne_lidar/MultilevelLaserScan.h>
-#include <velodyne_lidar/range_data_filter.hpp>
 
 namespace velodyne_lidar
 {
