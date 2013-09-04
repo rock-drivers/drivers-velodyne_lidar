@@ -71,22 +71,70 @@ private:
 RotationLUT*  RotationLUT::instance = 0;
 
 
-//TODO: interpolate between a start and a end transformation
 void ConvertHelper::convertScanToPointCloud(const MultilevelLaserScan& laser_scan, std::vector<Eigen::Vector3d> &points,
                                             const Eigen::Affine3d& transform, bool skip_invalid_points,
                                             unsigned int skip_n_horizontal_scans,
                                             std::vector<float>* remission_values)
 {        
     points.clear();
-    RotationLUT* lut = RotationLUT::getInstance();
     
     if(remission_values != NULL)
         remission_values->clear();
 
-    //give the vector a hint about the size it might be
-    if(!laser_scan.horizontal_scans.empty())
+    // check if nothing to do
+    if(laser_scan.horizontal_scans.empty())
+        return;
+
+    // give the vector a hint about the size it might be
+    points.reserve(laser_scan.horizontal_scans.size() * laser_scan.horizontal_scans.front().vertical_scans.size());
+    
+    unsigned int h_skip_count = 0;
+    for(std::vector<MultilevelLaserScan::VerticalMultilevelScan>::const_iterator v_scan = laser_scan.horizontal_scans.begin(); v_scan < laser_scan.horizontal_scans.end(); v_scan++) 
     {
-        points.reserve(laser_scan.horizontal_scans.size() * laser_scan.horizontal_scans.front().vertical_scans.size());
+        // check if horizontal scan should be skipped
+        if(h_skip_count < skip_n_horizontal_scans)
+        {
+            h_skip_count++;
+            continue;
+        }
+        h_skip_count = 0;
+        convertVerticalScan(laser_scan, *v_scan, points, transform, skip_invalid_points, remission_values);
+    }
+    
+    if(remission_values != NULL)
+        assert(points.size() == remission_values->size());
+}
+
+void ConvertHelper::convertScanToPointCloud(const MultilevelLaserScan& laser_scan, std::vector<Eigen::Vector3d> &points,
+                                            const Eigen::Affine3d& transform_start, const Eigen::Affine3d& transform_end, 
+                                            bool skip_invalid_points, unsigned int skip_n_horizontal_scans,
+                                            std::vector<float>* remission_values)
+{
+    points.clear();
+    
+    if(remission_values != NULL)
+        remission_values->clear();
+
+    // check if nothing to do
+    if(laser_scan.horizontal_scans.empty())
+        return;
+
+    // give the vector a hint about the size it might be
+    points.reserve(laser_scan.horizontal_scans.size() * laser_scan.horizontal_scans.front().vertical_scans.size());
+
+    // compute interpolated transformations
+    unsigned interpolation_steps = 36;
+    Eigen::Vector3d translation_delta = transform_end.translation() - transform_start.translation();
+    Eigen::Quaterniond rotation_start = Eigen::Quaterniond(transform_start.linear());
+    Eigen::Quaterniond rotation_end = Eigen::Quaterniond(transform_end.linear());
+    base::Angle horizontal_start_angle = laser_scan.horizontal_scans.front().horizontal_angle;
+    double two_pi = 2 * M_PI;
+    double angle_step_size = two_pi / (double)interpolation_steps;
+    std::vector<Eigen::Affine3d> transforms(interpolation_steps);
+    for(unsigned i = 0; i < interpolation_steps; i++)
+    {
+        transforms[i] = rotation_start.slerp((double)i / (double)(interpolation_steps-1), rotation_end);
+        transforms[i].pretranslate(transform_start.translation() + (double)i * translation_delta);
     }
     
     unsigned int h_skip_count = 0;
@@ -99,36 +147,46 @@ void ConvertHelper::convertScanToPointCloud(const MultilevelLaserScan& laser_sca
             continue;
         }
         h_skip_count = 0;
-        
-        // convert vertical scans
-        for(unsigned int i = 0; i < v_scan->vertical_scans.size(); i++)
-        {
-            Eigen::Vector3d point;
-            if(laser_scan.isRangeValid(v_scan->vertical_scans[i].range))
-            {
-                //get a vector with the right length
-                point = ((double)v_scan->vertical_scans[i].range / 1000.0) * Eigen::Vector3d::UnitX();
-                //rotate
-                point = lut->getYawRotation(v_scan->horizontal_angle.getRad()) * lut->getPitchRotation(base::Angle::fromRad(v_scan->vertical_start_angle.getRad() + i * v_scan->vertical_angular_resolution).getRad()) * point;
-                
-                point = transform * point;
-                points.push_back(point);
-                
-                if(remission_values != NULL)
-                    remission_values->push_back(v_scan->vertical_scans[i].remission);
-            }
-            else if(!skip_invalid_points)
-            {
-                points.push_back(Eigen::Vector3d(base::unknown<double>(), base::unknown<double>(), base::unknown<double>()));
-                
-                if(remission_values != NULL)
-                    remission_values->push_back(v_scan->vertical_scans[i].remission);
-            }
-        }
+        double linear_angle = (v_scan->horizontal_angle - horizontal_start_angle).getRad() * -1.0;
+        linear_angle = linear_angle < 0 ? linear_angle + two_pi : linear_angle;
+        convertVerticalScan(laser_scan, *v_scan, points, transforms[(int)(linear_angle / angle_step_size)], skip_invalid_points, remission_values);
     }
     
     if(remission_values != NULL)
         assert(points.size() == remission_values->size());
+}
+
+void ConvertHelper::convertVerticalScan(const MultilevelLaserScan& laser_scan, const MultilevelLaserScan::VerticalMultilevelScan& v_scan, std::vector<Eigen::Vector3d> &points,
+                                        const Eigen::Affine3d& transform, bool skip_invalid_points, std::vector<float>* remission_values)
+{
+    RotationLUT* lut = RotationLUT::getInstance();
+    Eigen::Quaterniond horizontal_rotation = lut->getYawRotation(v_scan.horizontal_angle.getRad());
+
+    // convert vertical scans
+    for(unsigned int i = 0; i < v_scan.vertical_scans.size(); i++)
+    {
+        Eigen::Vector3d point;
+        if(laser_scan.isRangeValid(v_scan.vertical_scans[i].range))
+        {
+            //get a vector with the right length
+            point = ((double)v_scan.vertical_scans[i].range / 1000.0) * Eigen::Vector3d::UnitX();
+            //rotate
+            point = horizontal_rotation * lut->getPitchRotation(base::Angle::fromRad(v_scan.vertical_start_angle.getRad() + i * v_scan.vertical_angular_resolution).getRad()) * point;
+            
+            point = transform * point;
+            points.push_back(point);
+            
+            if(remission_values != NULL)
+                remission_values->push_back(v_scan.vertical_scans[i].remission);
+        }
+        else if(!skip_invalid_points)
+        {
+            points.push_back(Eigen::Vector3d(base::unknown<double>(), base::unknown<double>(), base::unknown<double>()));
+            
+            if(remission_values != NULL)
+                remission_values->push_back(v_scan.vertical_scans[i].remission);
+        }
+    }
 }
 
 struct HorizontalBin

@@ -16,10 +16,18 @@ public:
      * To speed up the process invalid points and a set of horizontal scans can be skipped.
      * Skipping horizontal scans will result in loosing information. 
      * It will allways skip n horizontal scans and than convert one and so on.
-    */
+     */
     static void convertScanToPointCloud(const MultilevelLaserScan &laser_scan, std::vector<Eigen::Vector3d> &points,
                                  const Eigen::Affine3d& transform = Eigen::Affine3d::Identity(), bool skip_invalid_points = true, 
                                  unsigned int skip_n_horizontal_scans = 0, std::vector<float>* remission_values = NULL);
+
+    /**
+     * The transformation will be interpolated between two given transformations.
+     */
+    static void convertScanToPointCloud(const MultilevelLaserScan &laser_scan, std::vector<Eigen::Vector3d> &points,
+                                 const Eigen::Affine3d& transform_start, const Eigen::Affine3d& transform_end, 
+                                 bool skip_invalid_points = true, unsigned int skip_n_horizontal_scans = 0, 
+                                 std::vector<float>* remission_values = NULL);
     
     /**
      * Provides a binning of the horizontal scans of every vertical plane. The scans inside a bin are filtered 
@@ -50,6 +58,10 @@ public:
 private:
     ConvertHelper();
     ~ConvertHelper();
+
+    static void convertVerticalScan(const MultilevelLaserScan& laser_scan, const MultilevelLaserScan::VerticalMultilevelScan& v_scan,
+                                    std::vector<Eigen::Vector3d> &points, const Eigen::Affine3d& transform = Eigen::Affine3d::Identity(),
+                                    bool skip_invalid_points = true, std::vector<float>* remission_values = NULL);
 };
     
 };
