@@ -220,7 +220,7 @@ void ConvertHelper::horizontalBinning(const MultilevelLaserScan &laser_scan, Mul
     base::Angle bin_end_angle = bin_start_angle - corrected_bin_size;
     
     std::vector<HorizontalBin> bin_sum(laser_scan.horizontal_scans.front().vertical_scans.size());
-    for(int i = 0; i < bin_sum.size(); i++)
+    for(unsigned i = 0; i < bin_sum.size(); i++)
         bin_sum[i].clear();
     
     unsigned bin_value_count = 0;
@@ -233,7 +233,7 @@ void ConvertHelper::horizontalBinning(const MultilevelLaserScan &laser_scan, Mul
         {
             // add values to bin
             bin_value_count += 1;
-            for(int i = 0; i < bin_sum.size(); i++)
+            for(unsigned i = 0; i < bin_sum.size(); i++)
             {
                 if(v_scan->vertical_scans[i].range > MultilevelLaserScan::MAX_RANGE_ERROR && filtered_laser_scan.isRangeValid(v_scan->vertical_scans[i].range))
                 {
@@ -256,7 +256,7 @@ void ConvertHelper::horizontalBinning(const MultilevelLaserScan &laser_scan, Mul
                 new_v_scan.vertical_angular_resolution = (v_scan-1)->vertical_angular_resolution;
                 new_v_scan.horizontal_angle = bin_angle;
                 new_v_scan.vertical_scans.resize(bin_sum.size());
-                for(int i = 0; i < bin_sum.size(); i++)
+                for(unsigned i = 0; i < bin_sum.size(); i++)
                 {
                     if(bin_sum[i].ranges.size() >= (double)bin_value_count * 0.5)
                     {
@@ -322,7 +322,7 @@ void ConvertHelper::horizontalBinning(const MultilevelLaserScan &laser_scan, Mul
                 
                 // reset values
                 bin_value_count = 0;
-                for(int i = 0; i < bin_sum.size(); i++)
+                for(unsigned i = 0; i < bin_sum.size(); i++)
                     bin_sum[i].clear();
             }
             
@@ -356,7 +356,7 @@ void ConvertHelper::filterOutliers(const MultilevelLaserScan& laser_scan, Multil
        laser_scan.horizontal_scans.front().vertical_scans.size() == 0)
         return;
     
-    for(int i = 0; i < laser_scan.horizontal_scans.size(); i++)
+    for(unsigned i = 0; i < laser_scan.horizontal_scans.size(); i++)
     {
         const MultilevelLaserScan::VerticalMultilevelScan* left_scan = &laser_scan.horizontal_scans[i == 0 ? laser_scan.horizontal_scans.size()-1 : i-1];
         const MultilevelLaserScan::VerticalMultilevelScan* current_scan = &laser_scan.horizontal_scans[i];
