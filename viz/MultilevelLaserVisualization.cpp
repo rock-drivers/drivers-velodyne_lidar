@@ -51,7 +51,6 @@ osg::ref_ptr<osg::Node> MultilevelLaserVisualization::createMainNode()
     
     //setup slope geometry
     slopeGeom = new osg::Geometry();
-    slopeGeom->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE);
     slopeGeom->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF); 
     scanNode->addDrawable(slopeGeom);
 
@@ -157,11 +156,13 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
                     osg::Vec4 color( 1.0, 1.0, 1.0, 1.0 );
                     hslToRgb(v_angle/M_PI, 1.0, 0.5, color.r(), color.g(), color.b());
                     slope_colors->push_back(color);
+                    slope_colors->push_back(color);
                 }
             }
         }
         
         slopeGeom->setColorArray(slope_colors);
+        slopeGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
         slopeGeom->setVertexArray(slope_vertices);
         slopeGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,0,slope_vertices->size()));
     }
