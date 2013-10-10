@@ -2,16 +2,16 @@
 #define velodyne_lidar_MultilevelLaserVisualization_H
 
 #include <boost/noncopyable.hpp>
-#include <vizkit/Vizkit3DPlugin.hpp>
+#include <vizkit3d/Vizkit3DPlugin.hpp>
 #include <osg/Geode>
-#include <base/samples/rigid_body_state.h>
+#include <base/samples/RigidBodyState.hpp>
 #include <velodyne_lidar/MultilevelLaserScan.h>
-#include <base/angle.h>
+#include <base/Angle.hpp>
 
-namespace vizkit
+namespace vizkit3d
 {
     class MultilevelLaserVisualization
-        : public vizkit::Vizkit3DPlugin<velodyne_lidar::MultilevelLaserScan>
+        : public vizkit3d::Vizkit3DPlugin<velodyne_lidar::MultilevelLaserScan>
         , boost::noncopyable
     {
     Q_OBJECT

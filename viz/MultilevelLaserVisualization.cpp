@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vizkit/Vizkit3DHelper.hpp>
+#include <vizkit3d/Vizkit3DHelper.hpp>
 #include <osg/PositionAttitudeTransform>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -7,9 +7,9 @@
 #include "MultilevelLaserVisualization.hpp"
 #include <velodyne_lidar/pointcloudConvertHelper.hpp>
 #include <time.h>
-#include <vizkit/ColorConversionHelper.hpp>
+#include <vizkit3d/ColorConversionHelper.hpp>
 
-using namespace vizkit;
+using namespace vizkit3d;
 
 MultilevelLaserVisualization::MultilevelLaserVisualization() : 
     skip_n_horizontal_scans(0), colorize_altitude(false), colorize_magnitude(false), colorize_interval(1.0), show_remission(false), show_slope(false)
