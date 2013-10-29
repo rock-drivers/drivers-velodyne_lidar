@@ -426,3 +426,63 @@ double ConvertHelper::computeMaximumAngle(double angle_between_rays, double dist
     double oposite_angle = atan2(sin(angle_between_rays) * min_dist, max_dist - (cos(angle_between_rays) * min_dist));
     return M_PI - (oposite_angle + angle_between_rays);
 }
+
+void ConvertHelper::verticalClipping(const MultilevelLaserScan &laser_scan, MultilevelLaserScan &filtered_laser_scan, const base::Angle &start_angle, const base::Angle &end_angle)
+{
+    if(start_angle.getRad() >= end_angle.getRad())
+        throw std::range_error("The start angle has to be smaller then the end angle.");
+
+    // copy data
+    filtered_laser_scan.time = laser_scan.time;
+    filtered_laser_scan.min_range = laser_scan.min_range;
+    filtered_laser_scan.max_range = laser_scan.max_range;
+    filtered_laser_scan.horizontal_scans.clear();
+
+    // check for invalid input or nothing to do
+    if(laser_scan.horizontal_scans.size() == 0 || laser_scan.horizontal_scans.front().vertical_scans.size() == 0 ||
+        (start_angle.getRad() <= laser_scan.horizontal_scans.front().vertical_start_angle.getRad() && end_angle.getRad() >= 
+        laser_scan.horizontal_scans.front().vertical_start_angle.getRad() +    
+        (double)laser_scan.horizontal_scans.front().vertical_scans.size() * laser_scan.horizontal_scans.front().vertical_angular_resolution))
+        return;
+
+    // find start and end index
+    const MultilevelLaserScan::VerticalMultilevelScan &first_v_scan = laser_scan.horizontal_scans.front();
+    int start_index = -1;
+    base::Angle new_v_start_angle;
+    int end_index = -1;
+    for(unsigned i = 0; i < first_v_scan.vertical_scans.size(); i++)
+    {
+        if(start_angle.getRad() <= first_v_scan.vertical_start_angle.getRad() + (first_v_scan.vertical_angular_resolution * (double)i))
+        {
+            new_v_start_angle = base::Angle::fromRad(first_v_scan.vertical_start_angle.getRad() + (first_v_scan.vertical_angular_resolution * (double)i));
+            start_index = i;
+            break;
+        }
+    }
+    for(unsigned i = 0; i < first_v_scan.vertical_scans.size(); i++)
+    {
+        if(end_angle.getRad() >= first_v_scan.vertical_start_angle.getRad() + (first_v_scan.vertical_angular_resolution * (double)i))
+        {
+            end_index = i;
+        }
+        else
+            break;
+    }
+
+    if(end_index < 0 || start_index < 0 || start_index > end_index)
+        throw std::range_error("clipping range is out of laser scanner resolution.");
+
+    filtered_laser_scan.horizontal_scans.resize(laser_scan.horizontal_scans.size());
+    for(unsigned i = 0; i < laser_scan.horizontal_scans.size(); i++)
+    {
+        filtered_laser_scan.horizontal_scans[i].horizontal_angle = laser_scan.horizontal_scans[i].horizontal_angle;
+        filtered_laser_scan.horizontal_scans[i].vertical_scans.reserve((end_index - start_index) + 1);
+        filtered_laser_scan.horizontal_scans[i].vertical_start_angle = new_v_start_angle;
+        filtered_laser_scan.horizontal_scans[i].vertical_angular_resolution = laser_scan.horizontal_scans[i].vertical_angular_resolution;
+        filtered_laser_scan.horizontal_scans[i].time = laser_scan.horizontal_scans[i].time;
+        for(unsigned j = start_index; j <= end_index; j++)
+        {
+            filtered_laser_scan.horizontal_scans[i].vertical_scans.push_back(laser_scan.horizontal_scans[i].vertical_scans[j]);
+        }
+    }
+}

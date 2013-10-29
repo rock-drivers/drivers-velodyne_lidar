@@ -54,6 +54,15 @@ public:
      * by the origin and the tips of both rays.
      */
     static double computeMaximumAngle(double angle_between_rays, double dist_ray_1, double dist_ray_2);
+
+    /**
+     * Clips a sub vertical range out of the scan. To vertical angles: Zero is in front, negative values go upwards and possitive values go downwards. The start angle has smaller than the end angle.
+     * @param laser_scan input scan
+     * @param filtered_laser_scan output scan
+     * @param start_angle
+     * @param end_angle
+     */
+    static void verticalClipping(const MultilevelLaserScan &laser_scan, MultilevelLaserScan &filtered_laser_scan, const base::Angle &start_angle, const base::Angle &end_angle);
     
 private:
     ConvertHelper();

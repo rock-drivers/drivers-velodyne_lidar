@@ -22,7 +22,7 @@ namespace velodyne_lidar
                                                          30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0};
                                                          
     static const double VELODYNE_VERTICAL_RESOLUTION = 1.333333333; // vertical resolution in degree
-    static const double VELODYNE_VERTICAL_START_ANGLE = -VELODYNE_VERTICAL_RESOLUTION * 8; // vertical start angle in degree
+    static const double VELODYNE_VERTICAL_START_ANGLE = -VELODYNE_VERTICAL_RESOLUTION * 8.0; // vertical start angle in degree
     static const double VELODYNE_VERTICAL_END_ANGLE = VELODYNE_VERTICAL_RESOLUTION * 23.0; // vertical end angle in degree
 };
 
