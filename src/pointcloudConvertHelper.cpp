@@ -134,7 +134,7 @@ void ConvertHelper::convertScanToPointCloud(const MultilevelLaserScan& laser_sca
     for(unsigned i = 0; i < interpolation_steps; i++)
     {
         transforms[i] = rotation_start.slerp((double)i / (double)(interpolation_steps-1), rotation_end);
-        transforms[i].pretranslate(transform_start.translation() + (double)i * translation_delta);
+        transforms[i].pretranslate(transform_start.translation() + ((double)i / (double)(interpolation_steps-1)) * translation_delta);
     }
     
     unsigned int h_skip_count = 0;
