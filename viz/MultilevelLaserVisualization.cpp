@@ -86,7 +86,7 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
             hslToRgb(hue, 1.0, 0.5, color.r(), color.g(), color.b());
             colors->push_back(color);
         }
-        scanGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	scanGeom->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
     }
     else if(show_remission)
     {
@@ -94,14 +94,13 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
         {
             colors->push_back(osg::Vec4(0,0,*it,0.5));
         }
-        scanGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	scanGeom->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
     }
     else
     {
         colors->push_back(osg::Vec4(0,0,0.3,0.5));
-        scanGeom->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+	scanGeom->setColorArray(colors, osg::Array::BIND_OVERALL);
     }
-    scanGeom->setColorArray(colors);
     
     scanVertices->reserve(points.size());
 
