@@ -4,6 +4,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Point>
+#include <osg/Version>
 #include "MultilevelLaserVisualization.hpp"
 #include <velodyne_lidar/pointcloudConvertHelper.hpp>
 #include <time.h>
