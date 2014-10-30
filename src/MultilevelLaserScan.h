@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <boost/cstdint.hpp>
-#include <base/time.h>
-#include <base/angle.h>
-#include <base/float.h>
+#include <base/Time.hpp>
+#include <base/Angle.hpp>
+#include <base/Float.hpp>
 
 namespace velodyne_lidar
 {
