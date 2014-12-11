@@ -112,9 +112,9 @@ void MultilevelLaserVisualization::updateMainNode ( osg::Node* node )
     {
         colors->push_back(osg::Vec4(0,0,0.3,0.5));
 		#if OSG_MIN_VERSION_REQUIRED(3,1,8)
-				scanGeom->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
+				scanGeom->setColorArray(colors, osg::Array::BIND_OVERALL);
 		#else
-				scanGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+				scanGeom->setColorBinding(osg::Geometry::BIND_OVERALL);
 				scanGeom->setColorArray(colors);
 		#endif
     }
