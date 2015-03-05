@@ -3,7 +3,7 @@
 
 #include <iodrivers_base/Driver.hpp>
 #include <velodyne_lidar/velodyneProtocolTypes.hpp>
-#include <velodyne_lidar/MultilevelLaserScan.h>
+#include <base/samples/DepthMap.hpp>
 
 namespace velodyne_lidar
 {
@@ -12,17 +12,12 @@ class VelodyneDataDriver : public iodrivers_base::Driver
 {
 public:    
     VelodyneDataDriver();
-    
-    /**
-     * Converts the internal type velodyne_fire_t to a VerticalMultilevelScan
-     */
-    void convertToVerticalMultilevelScan(const velodyne_fire_t &velodyne_fire, MultilevelLaserScan::VerticalMultilevelScan &vertical_scan);
-    
-    /**
-     * Converts the internal type vel_laser_t to a SingleScan
-     */
-    void convertToSingleScan(const vel_laser_t &velodyne_laser, MultilevelLaserScan::SingleScan &single_scan);
-
+			
+	/**
+	 * Collects a column of all distance (and optional remission) values from velodyne_fire_t into the matrix (matrices)
+	 */
+	void collectColumn(const velodyne_fire_t& velodyne_fire, Eigen::Matrix<base::samples::DepthMap::scalar, Eigen::Dynamic, Eigen::Dynamic> &distances, Eigen::Matrix<base::samples::DepthMap::scalar, Eigen::Dynamic, Eigen::Dynamic> &remissions, unsigned int col, bool useRemissions);
+	
     /**
      * prints the packet
      */

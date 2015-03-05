@@ -45,26 +45,29 @@ VelodyneDataDriver::VelodyneDataDriver() : Driver(VELODYNE_DATA_MSG_BUFFER_SIZE)
   assert(sizeof(velodyne_data_packet_t) == VELODYNE_DATA_MSG_BUFFER_SIZE);
 }
 
-void VelodyneDataDriver::convertToVerticalMultilevelScan(const velodyne_fire& velodyne_fire, MultilevelLaserScan::VerticalMultilevelScan& vertical_scan)
+void VelodyneDataDriver::collectColumn(const velodyne_fire_t& velodyne_fire, Eigen::Matrix<base::samples::DepthMap::scalar, Eigen::Dynamic, Eigen::Dynamic> &distances, Eigen::Matrix<base::samples::DepthMap::scalar, Eigen::Dynamic, Eigen::Dynamic> &remissions, unsigned int col, bool useRemissions)
 {
-    if(vertical_scan.vertical_scans.size() != VELODYNE_NUM_LASERS)
-        vertical_scan.vertical_scans.resize(VELODYNE_NUM_LASERS);
-    
-    for(unsigned i = 0; i < VELODYNE_NUM_LASERS; i++)
+	if(distances.cols() <= col)
+		distances.conservativeResize(VELODYNE_NUM_LASERS, col+1);
+	
+	if(useRemissions && remissions.cols() <= col)
+		remissions.conservativeResize(VELODYNE_NUM_LASERS, col+1);
+	
+	for(unsigned i = 0; i < VELODYNE_NUM_LASERS; i++)
     {
-        convertToSingleScan(velodyne_fire.lasers[VELODYNE_FIRING_ORDER[i]], vertical_scan.vertical_scans[i]);
-    }
-    
-    vertical_scan.horizontal_angle = base::Angle::fromDeg(((double)velodyne_fire.rotational_pos) * 0.01);
-    vertical_scan.vertical_start_angle = base::Angle::fromDeg(VELODYNE_VERTICAL_START_ANGLE);
-    vertical_scan.vertical_angular_resolution = base::Angle::deg2Rad(VELODYNE_VERTICAL_RESOLUTION);
+		const vel_laser_t &velodyne_laser = velodyne_fire.lasers[VELODYNE_FIRING_ORDER[i]];
+		if(velodyne_laser.distance <= MIN_SENSING_DISTANCE/2 && velodyne_laser.distance > 0) // dismiss all values under 1m
+			distances(i, col) = 0;
+		else if(velodyne_laser.distance == 0) // zero means no return within max range
+			distances(i, col) = base::infinity<base::samples::DepthMap::scalar>();
+		else
+			distances(i, col) = velodyne_laser.distance * 0.002;
+		
+		if(useRemissions)
+			remissions(i, col) = static_cast<float>(velodyne_laser.intensity) / 255.0f; // set remission because of valid distance
+	}
 }
 
-void VelodyneDataDriver::convertToSingleScan(const vel_laser_t& velodyne_laser, MultilevelLaserScan::SingleScan& single_scan)
-{
-    single_scan.range = velodyne_laser.distance == 0 ? MultilevelLaserScan::TOO_FAR  : velodyne_laser.distance * 2; // 2mm to 1mm increment
-    single_scan.remission = ((float)velodyne_laser.intensity) / 255.0f;
-}
 
 int VelodyneDataDriver::extractPacket(const uint8_t* buffer, size_t buffer_size) const
 {
