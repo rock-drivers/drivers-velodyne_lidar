@@ -61,7 +61,7 @@ void VelodyneDataDriver::collectColumn(const velodyne_fire_t& velodyne_fire, Eig
 		else if(velodyne_laser.distance == 0) // zero means no return within max range
 			distances(i, col) = base::infinity<base::samples::DepthMap::scalar>();
 		else
-			distances(i, col) = velodyne_laser.distance * 0.002;
+			distances(i, col) = velodyne_laser.distance * 0.002; // velodyne acquires in 2mm-units, divide by 1000 to get meters
 		
 		if(useRemissions)
 			remissions(i, col) = static_cast<float>(velodyne_laser.intensity) / 255.0f; // set remission because of valid distance
