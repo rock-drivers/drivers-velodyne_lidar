@@ -20,8 +20,8 @@ namespace velodyne_lidar
     
     static const unsigned int VELODYNE_FIRING_ORDER[] = {31, 29, 27, 25, 23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1,
                                                          30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0};
-                                                         
-    static const double VELODYNE_VERTICAL_RESOLUTION = 1.333333333; // vertical resolution in degree
+                                
+    static const double VELODYNE_VERTICAL_RESOLUTION = 1.0 + 1.0/3.0; // vertical resolution in degree
     static const double VELODYNE_VERTICAL_START_ANGLE = -VELODYNE_VERTICAL_RESOLUTION * 8.0; // vertical start angle in degree
     static const double VELODYNE_VERTICAL_END_ANGLE = VELODYNE_VERTICAL_RESOLUTION * 23.0; // vertical end angle in degree
 };
