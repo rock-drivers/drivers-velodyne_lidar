@@ -12,6 +12,7 @@ namespace vizkit3d
 {
     class MultilevelLaserVisualization
         : public vizkit3d::Vizkit3DPlugin<velodyne_lidar::MultilevelLaserScan>
+        , public vizkit3d::VizPluginAddType<base::samples::RigidBodyState>
         , boost::noncopyable
     {
     Q_OBJECT
