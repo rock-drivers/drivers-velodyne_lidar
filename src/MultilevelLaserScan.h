@@ -10,6 +10,9 @@
 namespace velodyne_lidar
 {
     
+/** @deprecated This type is deprecated, please use
+ *  base::samples::DepthMap instead!
+ */
 struct MultilevelLaserScan
 {    
    /** Special values for the ranges. If a range has one of these values, then
