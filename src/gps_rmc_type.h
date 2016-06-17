@@ -1,7 +1,7 @@
 #ifndef _GPS_RMC_TYPE_H_
 #define _GPS_RMC_TYPE_H_
 
-#include <base/time.h>
+#include <base/Time.hpp>
 
 namespace velodyne_lidar
 {
