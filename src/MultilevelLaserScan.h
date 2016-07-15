@@ -84,7 +84,7 @@ struct MultilevelLaserScan
     
     inline bool isRangeValid(boost::uint32_t range) const
     {
-        if(!boost::math::isnan(range) && !boost::math::isinf(range) && range >= min_range && range <= max_range)
+        if(!std::isnan(range) && !std::isinf(range) && range >= min_range && range <= max_range)
             return true;
         return false;
     }

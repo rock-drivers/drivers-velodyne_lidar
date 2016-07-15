@@ -225,11 +225,13 @@ void ConvertHelper::horizontalBinning(const MultilevelLaserScan &laser_scan, Mul
     
     unsigned bin_value_count = 0;
     unsigned values_handled = 0;
+    
 
     std::vector<MultilevelLaserScan::VerticalMultilevelScan>::const_iterator v_scan = laser_scan.horizontal_scans.begin();
     while(v_scan < laser_scan.horizontal_scans.end() || bin_value_count > 0) 
     {        
-        if(v_scan < laser_scan.horizontal_scans.end() && !(v_scan->horizontal_angle == bin_end_angle) && v_scan->horizontal_angle.isInRange(bin_end_angle, bin_start_angle))
+        base::AngleSegment horAngleSeg(bin_start_angle, bin_end_angle.getRad() - bin_start_angle.getRad());
+        if(v_scan < laser_scan.horizontal_scans.end() && !(v_scan->horizontal_angle == bin_end_angle) && horAngleSeg.isInside(v_scan->horizontal_angle))
         {
             // add values to bin
             bin_value_count += 1;
