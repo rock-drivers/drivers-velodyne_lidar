@@ -6,12 +6,12 @@ namespace velodyne_lidar
     static const unsigned int VELODYNE_NUM_LASERS = 32; // The number of lasers per shot
     static const unsigned int VELODYNE_NUM_SHOTS = 12; // The number of shots per packet
     static const unsigned int VELODYNE_ORIENTATION_READINGS = 3; // The number of orientation readings
-    static const unsigned int MIN_SENSING_DISTANCE = 1000; //2m in 2mm units
-    static const unsigned int MAX_SENSING_DISTANCE = 24000; //1200m in 2mm units
-    static const unsigned int VELODYNE_DATA_MSG_BUFFER_SIZE = 1206; //The sides of a data packet
-    static const unsigned int VELODYNE_POSITIONING_MSG_BUFFER_SIZE = 512; //The sides of a positioning packet
+    static const unsigned int MIN_SENSING_DISTANCE = 500; //1m in 2mm units
+    static const unsigned int MAX_SENSING_DISTANCE = 35000; //70m in 2mm units
+    static const unsigned int VELODYNE_DATA_MSG_BUFFER_SIZE = 1206; //The size of a data packet
+    static const unsigned int VELODYNE_POSITIONING_MSG_BUFFER_SIZE = 512; //The size of a positioning packet
 
-    static const double VELODYNE_DRIVER_BROADCAST_FREQ_HZ = 50.0; //The rate of broadcast packets
+    static const double VELODYNE_DRIVER_BROADCAST_FREQ_HZ = 1808.0; //The rate of broadcast packets. See Velodyne hdl-32e manual page 11.
     static const unsigned int VELODYNE_DATA_UDP_PORT = 2368; //The port the Velodyne sends laser data to
     static const unsigned int VELODYNE_POSITIONING_UDP_PORT = 8308; //The port the Velodyne sends positioning data to
 
