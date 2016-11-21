@@ -17,7 +17,7 @@ VelodyneDataDriver::VelodyneDataDriver() : Driver(VELODYNE_DATA_MSG_BUFFER_SIZE)
     
     current_batch_size = 0;
     target_batch_size = 36000; // 360 degree
-    packets_received = 0;
+    packets_idx = 0;
     packets_lost = 0;
     upper_head.reserve(200);
     lower_head.reserve(200);
@@ -55,10 +55,10 @@ bool VelodyneDataDriver::readNewPacket()
                     int64_t new_packets = (int64_t)((double)current_period / (double)expected_packet_period + 0.5);
                     if(new_packets > 1)
                         packets_lost += new_packets - 1;
-                    packets_received += new_packets;
+                    packets_idx += new_packets;
                 }
                 last_packet_internal_timestamp = data_packet.packet.gps_timestamp;
-                base::Time packet_timestamp = timestamp_estimator->update(receive_time, packets_received);
+                base::Time packet_timestamp = timestamp_estimator->update(receive_time, packets_idx);
                 base::Time time_between_shots = timestamp_estimator->getPeriod() * (1./(double)VELODYNE_NUM_SHOTS);
                 for(unsigned i = 1; i <= VELODYNE_NUM_SHOTS; i++)
                     data_packet.time[i-1] = packet_timestamp - time_between_shots * (VELODYNE_NUM_SHOTS-i);
@@ -160,7 +160,7 @@ int64_t VelodyneDataDriver::getPacketLostCount()
 
 int64_t VelodyneDataDriver::getPacketReceivedCount()
 {
-    return packets_received;
+    return packets_idx - packets_lost;
 }
 
 void VelodyneDataDriver::print_packet(velodyne_data_packet_t &packet) 

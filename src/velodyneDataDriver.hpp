@@ -97,7 +97,7 @@ protected:
     uint64_t current_batch_size;
     uint16_t last_rotational_pos;
     uint32_t last_packet_internal_timestamp; // in microseconds
-    int64_t packets_received;
+    int64_t packets_idx;
     int64_t packets_lost;
     int64_t expected_packet_period;
     aggregator::TimestampEstimator* timestamp_estimator;
