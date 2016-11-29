@@ -145,7 +145,7 @@ void VelodyneDataDriver::clearCurrentScan()
 
 double VelodyneDataDriver::getScanSize()
 {
-    return (double)target_batch_size * 0.01;
+    return base::Angle::deg2Rad((double)target_batch_size * 0.01);
 }
 
 void VelodyneDataDriver::setScanSize(double angular_size)
