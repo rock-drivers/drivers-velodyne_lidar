@@ -9,6 +9,7 @@
   <logo>http://</logo>
   
   <depend package="drivers/iodrivers_base" />
+  <depend package="drivers/aggregator" />
   <depend package="base/types" />
   <depend package="gui/vizkit3d" optional="1" />
   
