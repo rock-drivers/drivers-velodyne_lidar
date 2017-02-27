@@ -14,12 +14,6 @@ namespace aggregator
 namespace velodyne_lidar
 {
 
-enum LaserHead
-{
-    LowerHead,
-    UpperHead
-};
-
 class VelodyneDataDriver : public iodrivers_base::Driver 
 {
     struct StampedDataPacket
@@ -29,7 +23,7 @@ class VelodyneDataDriver : public iodrivers_base::Driver
     };
 
 public:
-    VelodyneDataDriver();
+    VelodyneDataDriver(SensorType sensor_type, double broadcast_frequency);
     virtual ~VelodyneDataDriver();
 
     /**
@@ -49,7 +43,7 @@ public:
      * Also clears all collected packets of the corresponding laser head.
      * @returns true on success, false if nothing to convert.
      */
-    bool convertScanToSample(base::samples::DepthMap& sample, LaserHead head = UpperHead, bool copy_remission = true);
+    virtual bool convertScanToSample(base::samples::DepthMap& sample, bool copy_remission = true) = 0;
 
     /**
      * Clears all collected packets.
@@ -77,6 +71,11 @@ public:
     int64_t getPacketReceivedCount();
 
     /**
+     * Return frequency of the arriving data samples
+     */
+    virtual double getBroadcastFrequency() = 0;
+
+    /**
      * Prints the packet
      */
     void print_packet(velodyne_data_packet_t &);
@@ -93,6 +92,7 @@ protected:
      */
     void addNewPacket(const StampedDataPacket& packet);
 
+    SensorType sensor_type;
     uint64_t target_batch_size;
     uint64_t current_batch_size;
     uint16_t last_rotational_pos;
@@ -101,8 +101,7 @@ protected:
     int64_t packets_lost;
     int64_t expected_packet_period;
     aggregator::TimestampEstimator* timestamp_estimator;
-    std::vector<StampedDataPacket> upper_head;
-    std::vector<StampedDataPacket> lower_head;
+    std::vector<StampedDataPacket> packets;
 };
 
 };

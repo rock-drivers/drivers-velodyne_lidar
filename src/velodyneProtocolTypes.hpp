@@ -14,16 +14,16 @@ namespace velodyne_lidar
     } __attribute__((packed)) vel_laser_t;
 
     typedef struct velodyne_fire {
-        uint16_t lower_upper;
+        uint16_t laser_header;
         uint16_t rotational_pos; // 0-35999  divide by 100 for degrees
-        vel_laser_t lasers[VELODYNE_NUM_LASERS]; 
+        vel_laser_t lasers[VELODYNE_NUM_LASER_CHANNELS]; 
     } __attribute__((packed)) velodyne_fire_t ;
 
     typedef struct velodyne_data_packet {
         velodyne_fire_t shots[VELODYNE_NUM_SHOTS];  
         uint32_t gps_timestamp; // in microseconds from the top of the hour
-        uint8_t status_type;
-        uint8_t status_value;
+        uint8_t return_mode;
+        uint8_t sensor_type;
         
         velodyne_data_packet()
         {
