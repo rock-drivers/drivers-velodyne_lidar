@@ -31,6 +31,12 @@ public:
     void convertMotionValues(const velodyne_orientation_t& velodyne_orientation_data, double& gyro, double& temp, double& accel_x, double& accel_y) const;
     
     /**
+     * Converts the internal type velodyne_orientation_t array to a calibrated gyroscope, accelerometer and temperature measurement vector.
+     * Gyroscope measurements are in rad/s, accelerometer in m/s^2, temperature in degrees Celsius.
+     */
+    void convertIMUReadingsCalibrated(const velodyne_orientation_t rawdata[VELODYNE_ORIENTATION_READINGS], double gyro[3], double accel[3], double temp[3]) const;
+
+    /**
      * Converts a NMEA GPRMC sentence to a appropriate data struct
      */
     void convertNMEASentence(const std::string& nmea_message, GPS_RMC& rmc_data);

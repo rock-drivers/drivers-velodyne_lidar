@@ -36,6 +36,27 @@ void VelodynePositioningDriver::convertMotionValues(const velodyne_orientation_t
     accel_y = ( (double) (( (int16_t)(velodyne_orientation_data.accel_y<<4) )/16) ) * 0.001221;
 }
 
+inline double scale_sign_extend_int12(uint16_t raw, double scale = 1.0)
+{
+    return int16_t(raw<<4) * (scale/16);
+}
+
+void VelodynePositioningDriver::convertIMUReadingsCalibrated(const velodyne_orientation_t rawdata[VELODYNE_ORIENTATION_READINGS], double gyro[3], double accel[3], double temp[3]) const
+{
+    for(int i=0; i<3; ++i)
+    {
+        gyro[i] = scale_sign_extend_int12(rawdata[i].gyro, 0.09766 * M_PI/180);
+        temp[i] = scale_sign_extend_int12(rawdata[i].temperature, 0.1453) + 25.0;
+    }
+    // average measurements of colinear accelerometers:
+    const double accel_scale = 0.001221*9.81/2;
+    accel[0] = scale_sign_extend_int12(rawdata[1].accel_y, -accel_scale) +  scale_sign_extend_int12(rawdata[2].accel_y, -accel_scale);
+    accel[1] = scale_sign_extend_int12(rawdata[0].accel_y, -accel_scale) +  scale_sign_extend_int12(rawdata[2].accel_x,  accel_scale);
+    accel[2] = scale_sign_extend_int12(rawdata[0].accel_x,  accel_scale) +  scale_sign_extend_int12(rawdata[1].accel_x,  accel_scale);
+}
+
+
+
 void VelodynePositioningDriver::convertNMEASentence(const std::string& nmea_message, GPS_RMC& rmc_data)
 {
     if(nmea_message.size() == 0)
