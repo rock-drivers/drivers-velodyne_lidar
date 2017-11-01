@@ -1,6 +1,18 @@
 rock_library(velodyne_lidar
-    SOURCES velodyneDataDriver.cpp velodynePositioningDriver.cpp pointcloudConvertHelper.cpp
-    HEADERS velodyneDataDriver.hpp velodynePositioningDriver.hpp pointcloudConvertHelper.hpp velodyneConstants.hpp velodyneProtocolTypes.hpp MultilevelLaserScan.h gps_rmc_type.h
+    SOURCES velodyneDataDriver.cpp
+            VelodyneHDL32EDriver.cpp
+            VelodyneVLP16Driver.cpp
+            velodynePositioningDriver.cpp
+            pointcloudConvertHelper.cpp
+    HEADERS velodyneDataDriver.hpp
+            VelodyneHDL32EDriver.hpp
+            VelodyneVLP16Driver.hpp
+            velodynePositioningDriver.hpp
+            pointcloudConvertHelper.hpp
+            velodyneConstants.hpp
+            velodyneProtocolTypes.hpp
+            MultilevelLaserScan.h
+            gps_rmc_type.h
     DEPS_PKGCONFIG base-lib iodrivers_base aggregator)
 
 rock_executable(velodyne_lidar_bin test_velodyneDriver.cpp

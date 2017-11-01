@@ -48,7 +48,7 @@
 #include <stdio.h>
 #include <string>
 
-#include "velodyneDataDriver.hpp"
+#include "VelodyneHDL32EDriver.hpp"
 
 using namespace std;
 
@@ -113,7 +113,7 @@ int main(int argc, char **argv) // need these args for getopt(-long)
   }
   
 
-  velodyne_lidar::VelodyneDataDriver m_velodyneDriver;
+  velodyne_lidar::VelodyneHDL32EDriver m_velodyneDriver;
   
   m_velodyneDriver.openUDP("", velodyne_lidar::VELODYNE_DATA_UDP_PORT);
   
