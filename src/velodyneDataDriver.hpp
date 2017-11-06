@@ -59,6 +59,16 @@ public:
      * Returns the target scan size in radian.
      */
     double getScanSize();
+    
+    /**
+     * Sets the max sensing distance in meter
+     */
+    void setMinSensingDistance(double min_distance);
+    
+    /**
+     * Returns the max sensing distance in meter
+     */
+    double getMinSensingDistance();
 
     /**
      * Returns the count of lost packets.
@@ -100,6 +110,7 @@ protected:
     int64_t packets_idx;
     int64_t packets_lost;
     int64_t expected_packet_period;
+    unsigned int min_sensing_distance; // in 2mm units
     aggregator::TimestampEstimator* timestamp_estimator;
     std::vector<StampedDataPacket> packets;
 };

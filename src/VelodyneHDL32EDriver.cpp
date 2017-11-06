@@ -67,7 +67,7 @@ bool VelodyneHDL32EDriver::convertScanToSample(base::samples::DepthMap& sample, 
                 const vel_laser_t &laser = shot.lasers[FIRING_ORDER[k]];
                 if(laser.distance == 0) // zero means no return within max range
                     distances(k, column) = base::infinity<base::samples::DepthMap::scalar>();
-                else if(laser.distance <= MIN_SENSING_DISTANCE) // dismiss all values under 1m
+                else if(laser.distance <= min_sensing_distance) // dismiss all values under the configured limit
                     distances(k, column) = 0.f;
                 else
                     distances(k, column) = (float)laser.distance * 0.002f; // velodyne acquires in 2mm-units

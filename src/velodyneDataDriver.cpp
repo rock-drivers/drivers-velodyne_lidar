@@ -24,6 +24,7 @@ VelodyneDataDriver::VelodyneDataDriver(SensorType sensor_type, double broadcast_
     last_packet_internal_timestamp = base::unknown<uint32_t>();
     timestamp_estimator = new aggregator::TimestampEstimator(base::Time::fromSeconds(20), base::Time::fromSeconds(1.0/broadcast_frequency));
     expected_packet_period = 1000000 / broadcast_frequency;
+    min_sensing_distance = MIN_SENSING_DISTANCE;
 }
 
 VelodyneDataDriver::~VelodyneDataDriver()
@@ -94,6 +95,16 @@ double VelodyneDataDriver::getScanSize()
 void VelodyneDataDriver::setScanSize(double angular_size)
 {
     target_batch_size = (uint64_t)(base::Angle::rad2Deg(std::abs(angular_size)) * 100.0);
+}
+
+void VelodyneDataDriver::setMinSensingDistance(double min_distance)
+{
+    this->min_sensing_distance = min_distance / 0.002;
+}
+
+double VelodyneDataDriver::getMinSensingDistance()
+{
+    return (double)min_sensing_distance * 0.002;
 }
 
 int64_t VelodyneDataDriver::getPacketLostCount()
