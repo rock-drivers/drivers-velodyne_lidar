@@ -76,5 +76,7 @@ namespace vizkit3d
         bool show_slope;
         base::Angle maximum_angle_to_neighbor;
     };
+
+    VizkitQtPlugin(MultilevelLaserVisualization)
 }
 #endif
