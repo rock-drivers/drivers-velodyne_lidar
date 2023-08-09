@@ -277,3 +277,7 @@ void MultilevelLaserVisualization::setMaximumAngleToNeighbor(double value)
     maximum_angle_to_neighbor = base::Angle::fromDeg(value);
 }
 
+namespace vizkit3d
+{
+    VizkitQtPluginImpl(MultilevelLaserVisualization)
+}

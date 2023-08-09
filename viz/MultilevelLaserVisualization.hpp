@@ -77,6 +77,6 @@ namespace vizkit3d
         base::Angle maximum_angle_to_neighbor;
     };
 
-    VizkitQtPlugin(MultilevelLaserVisualization)
+    VizkitQtPluginHeaderDecls(MultilevelLaserVisualization)
 }
 #endif
