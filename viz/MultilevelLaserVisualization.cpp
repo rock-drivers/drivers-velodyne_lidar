@@ -277,6 +277,7 @@ void MultilevelLaserVisualization::setMaximumAngleToNeighbor(double value)
     maximum_angle_to_neighbor = base::Angle::fromDeg(value);
 }
 
-//Macro that makes this plugin loadable in ruby, this is optional.
-VizkitQtPlugin(MultilevelLaserVisualization)
-
+namespace vizkit3d
+{
+    VizkitQtPluginImpl(MultilevelLaserVisualization)
+}
